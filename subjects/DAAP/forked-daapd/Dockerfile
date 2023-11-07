@@ -20,8 +20,8 @@ RUN apt-get -y update && \
     gdb \
     netcat \
     strace \
-    wget
-
+    wget \
+    libprotobuf-c-dev 
 # Add a new user ubuntu, pass: ubuntu
 RUN groupadd ubuntu && \
     useradd -rm -d /home/ubuntu -s /bin/bash -g ubuntu -G sudo -u 1000 ubuntu -p "$(openssl passwd -1 ubuntu)"
