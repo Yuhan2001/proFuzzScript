@@ -74,7 +74,7 @@ RUN apt-get -y update && \
 USER ubuntu
 
 COPY --chown=ubuntu:ubuntu forked-daapd.patch ${WORKDIR}/forked-daapd.patch
-COPY --chown=ubuntu:ubuntu forked-daapd-gcov.patch ${WORKDIR}/forked-daapd-gcov.patch
+# COPY --chown=ubuntu:ubuntu forked-daapd-gcov.patch ${WORKDIR}/forked-daapd-gcov.patch
 
 
 # Set up environment variables for ASAN
@@ -84,7 +84,7 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/ejurgensen/forked-daapd.git && \
     cd forked-daapd && \
-    git checkout 2ca10d9 && \
+    git checkout 83ac327 && \
     patch -p1 < $WORKDIR/forked-daapd.patch && \
     autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
@@ -92,16 +92,16 @@ RUN cd $WORKDIR && \
     AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
 # Download and compile forked-daapd for code coverage analysis
-RUN cd $WORKDIR && \
-    git clone https://github.com/ejurgensen/forked-daapd.git forked-daapd-gcov && \
-    cd forked-daapd-gcov && \
-    git checkout 2ca10d9 && \
-    patch -p1 < $WORKDIR/forked-daapd.patch && \
-    patch -p1 < $WORKDIR/forked-daapd-gcov.patch && \
-    autoreconf -i && \
-    CFLAGS="-DSQLITE_CORE -fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
-    make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c && \
-    make clean all $MAKE_OPT
+# RUN cd $WORKDIR && \
+#     git clone https://github.com/ejurgensen/forked-daapd.git forked-daapd-gcov && \
+#     cd forked-daapd-gcov && \
+#     git checkout 2ca10d9 && \
+#     patch -p1 < $WORKDIR/forked-daapd.patch && \
+#     patch -p1 < $WORKDIR/forked-daapd-gcov.patch && \
+#     autoreconf -i && \
+#     CFLAGS="-DSQLITE_CORE -fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
+#     make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c && \
+#     make clean all $MAKE_OPT
 
 
 # Setting up the environment using root account
@@ -128,7 +128,7 @@ USER ubuntu
 RUN mkdir ${WORKDIR}/db
 
 COPY --chown=ubuntu:ubuntu in-daap ${WORKDIR}/in-daap
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
+# COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
 COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu MP3 ${WORKDIR}/MP3
 COPY --chown=ubuntu:ubuntu forked-daapd.conf ${WORKDIR}/forked-daapd.conf
