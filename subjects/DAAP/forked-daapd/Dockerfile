@@ -84,10 +84,10 @@ RUN cd $WORKDIR && \
 RUN cd $WORKDIR/forked-daapd && \
     git checkout 83ac327 && \
     patch -p1 < $WORKDIR/forked-daapd.patch
-RUN autoreconf -i && \
+RUN cd $WORKDIR/forked-daapd && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
-RUN AFL_USE_ASAN=1 make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c
-RUN AFL_USE_ASAN=1 make clean all $MAKE_OPT
+RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c
+RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
 # Download and compile forked-daapd for code coverage analysis
 # RUN cd $WORKDIR && \
