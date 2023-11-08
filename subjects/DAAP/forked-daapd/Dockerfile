@@ -20,8 +20,7 @@ RUN apt-get -y update && \
     gdb \
     netcat \
     strace \
-    wget \
-    libprotobuf-c-dev 
+    wget
 # Add a new user ubuntu, pass: ubuntu
 RUN groupadd ubuntu && \
     useradd -rm -d /home/ubuntu -s /bin/bash -g ubuntu -G sudo -u 1000 ubuntu -p "$(openssl passwd -1 ubuntu)"
@@ -38,15 +37,16 @@ WORKDIR /home/ubuntu
 ARG MAKE_OPT
 
 # Set up fuzzers
-RUN git clone https://github.com/profuzzbench/aflnet.git && \
-    cd aflnet && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
+RUN git clone https://github.com/profuzzbench/aflnet.git
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
+RUN cd aflnet && \
+    make clean all $MAKE_OPT
+RUN cd llvm_mode && make $MAKE_OPT
+
+# RUN git clone https://github.com/profuzzbench/aflnwe.git && \
+#     cd aflnwe && \
+#     make clean all $MAKE_OPT && \
+#     cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -61,16 +61,13 @@ ENV AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 \
 RUN mkdir $WORKDIR
 
 USER root
-RUN apt-get -y update && \
-    apt-get -y install \
-    bison \
-    flex \
-    autotools-dev autoconf automake libtool gettext gawk \
-    gperf antlr3 libantlr3c-dev libconfuse-dev libunistring-dev libsqlite3-dev \
+RUN apt-get install \
+    build-essential git autotools-dev autoconf automake libtool gettext gawk \
+    gperf bison flex libconfuse-dev libunistring-dev libsqlite3-dev \
     libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
     libasound2-dev libmxml-dev libgcrypt20-dev libavahi-client-dev zlib1g-dev \
     libevent-dev libplist-dev libsodium-dev libjson-c-dev libwebsockets-dev \
-    libcurl4-openssl-dev avahi-daemon
+    libcurl4-openssl-dev libprotobuf-c-dev
 USER ubuntu
 
 COPY --chown=ubuntu:ubuntu forked-daapd.patch ${WORKDIR}/forked-daapd.patch
@@ -82,14 +79,15 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 
 # Download and compile forked-daapd for fuzzing
 RUN cd $WORKDIR && \
-    git clone https://github.com/ejurgensen/forked-daapd.git && \
-    cd forked-daapd && \
+    git clone https://github.com/ejurgensen/forked-daapd.git
+    
+RUN cd forked-daapd && \
     git checkout 83ac327 && \
-    patch -p1 < $WORKDIR/forked-daapd.patch && \
-    autoreconf -i && \
-    CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
-    AFL_USE_ASAN=1 make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c && \
-    AFL_USE_ASAN=1 make clean all $MAKE_OPT
+    patch -p1 < $WORKDIR/forked-daapd.patch
+RUN autoreconf -i && \
+    CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
+RUN AFL_USE_ASAN=1 make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c
+RUN AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
 # Download and compile forked-daapd for code coverage analysis
 # RUN cd $WORKDIR && \
