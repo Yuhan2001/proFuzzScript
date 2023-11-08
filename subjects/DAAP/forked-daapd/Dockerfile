@@ -81,12 +81,10 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/ejurgensen/forked-daapd.git
 
-# 定义一个变量 CACHEBUST
-ARG CACHEBUST    
 RUN cd $WORKDIR/forked-daapd && \
     git checkout 83ac327 && \
-    patch -p1 < $WORKDIR/forked-daapd.patch && \
-    echo $CACHEBUST
+    patch -p1 < $WORKDIR/forked-daapd.patch
+
 RUN cd $WORKDIR/forked-daapd && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
 RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make
@@ -114,6 +112,7 @@ RUN touch /var/log/forked-daapd.log && \
 RUN touch /var/run/forked-daapd.pid && \
     chown ubuntu.root /var/run/forked-daapd.pid
 
+RUN chmod 775 /etc/init.d/avahi-daemon
 RUN update-rc.d avahi-daemon defaults
 
 RUN mkdir /usr/share/forked-daapd/ && \
