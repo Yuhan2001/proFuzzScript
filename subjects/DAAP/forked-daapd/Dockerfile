@@ -81,7 +81,7 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/ejurgensen/forked-daapd.git
     
-RUN cd forked-daapd && \
+RUN cd $WORKDIR/forked-daapd && \
     git checkout 83ac327 && \
     patch -p1 < $WORKDIR/forked-daapd.patch
 RUN autoreconf -i && \
