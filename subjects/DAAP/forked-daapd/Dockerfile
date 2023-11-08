@@ -41,7 +41,7 @@ RUN git clone https://github.com/profuzzbench/aflnet.git
 
 RUN cd aflnet && \
     make clean all $MAKE_OPT
-RUN cd llvm_mode && make $MAKE_OPT
+RUN cd aflnet/llvm_mode && make $MAKE_OPT
 
 # RUN git clone https://github.com/profuzzbench/aflnwe.git && \
 #     cd aflnwe && \
