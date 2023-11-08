@@ -68,7 +68,7 @@ RUN apt-get -y install \
     libasound2-dev libmxml-dev libgcrypt20-dev libavahi-client-dev zlib1g-dev \
     libevent-dev libplist-dev libsodium-dev libjson-c-dev libwebsockets-dev \
     libcurl4-openssl-dev libprotobuf-c-dev
-USER ubuntu
+USER root
 
 COPY --chown=ubuntu:ubuntu forked-daapd.patch ${WORKDIR}/forked-daapd.patch
 # COPY --chown=ubuntu:ubuntu forked-daapd-gcov.patch ${WORKDIR}/forked-daapd-gcov.patch
