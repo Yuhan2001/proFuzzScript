@@ -86,7 +86,7 @@ ARG CACHEBUST
 RUN cd $WORKDIR/forked-daapd && \
     git checkout 83ac327 && \
     patch -p1 < $WORKDIR/forked-daapd.patch && \
-    apt-get -y upgrade $CACHEBUST
+    $CACHEBUST=1
 RUN cd $WORKDIR/forked-daapd && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
 RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make
