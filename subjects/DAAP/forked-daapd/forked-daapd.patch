@@ -136,7 +136,7 @@ index 341f2c32..dca3e90a 100644
    // Setup AES
    gc_err = gcry_cipher_open(&raop_aes_ctx, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0);
 diff --git a/src/transcode.c b/src/transcode.c
-index 3f5b4a8f..3f5b3441 100644
+index 3f5b4a8f..babed6ba 100644
 --- a/src/transcode.c
 +++ b/src/transcode.c
 @@ -1013,7 +1013,7 @@ open_decoder(AVCodecContext **dec_ctx, unsigned int *stream_index, struct decode
@@ -144,7 +144,7 @@ index 3f5b4a8f..3f5b3441 100644
        return ret;
      }
 -
-+  dec_ctx->thread_count=1;
++  
    ret = avcodec_open2(*dec_ctx, NULL, NULL);
    if (ret < 0)
      {
