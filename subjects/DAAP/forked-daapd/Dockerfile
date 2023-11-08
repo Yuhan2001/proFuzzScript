@@ -112,8 +112,8 @@ RUN touch /var/log/forked-daapd.log && \
 RUN touch /var/run/forked-daapd.pid && \
     chown ubuntu.root /var/run/forked-daapd.pid
 
-RUN chmod 775 /etc/init.d/avahi-daemon
-RUN update-rc.d avahi-daemon defaults
+# RUN chmod 775 /etc/init.d/avahi-daemon
+# RUN update-rc.d avahi-daemon defaults
 
 RUN mkdir /usr/share/forked-daapd/ && \
     cp -R $WORKDIR/forked-daapd/htdocs /usr/share/forked-daapd/htdocs
