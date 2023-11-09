@@ -116,7 +116,7 @@ RUN touch /var/run/owntone.pid && \
 RUN update-rc.d avahi-daemon defaults
 
 RUN mkdir /usr/share/owntone/ && \
-    cp -R $WORKDIR/owntone/htdocs /usr/share/owntone/htdocs
+    cp -R $WORKDIR/owntone-server/htdocs /usr/share/owntone/htdocs
 
 RUN ln -s $WORKDIR/MP3 /tmp/MP3
 
