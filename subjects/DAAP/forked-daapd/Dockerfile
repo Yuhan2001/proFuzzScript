@@ -67,7 +67,9 @@ RUN apt-get -y install \
     libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
     libasound2-dev libmxml-dev libgcrypt20-dev libavahi-client-dev zlib1g-dev \
     libevent-dev libplist-dev libsodium-dev libjson-c-dev libwebsockets-dev \
-    libcurl4-openssl-dev libprotobuf-c-dev
+    libcurl4-openssl-dev libprotobuf-c-dev \
+    avahi-daemon
+
 USER root
 
 COPY --chown=ubuntu:ubuntu forked-daapd.patch ${WORKDIR}/forked-daapd.patch
@@ -87,8 +89,7 @@ RUN cd $WORKDIR/forked-daapd && \
 
 RUN cd $WORKDIR/forked-daapd && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
-RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make
-RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make install
+RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
 # Download and compile forked-daapd for code coverage analysis
 # RUN cd $WORKDIR && \
@@ -112,8 +113,7 @@ RUN touch /var/log/forked-daapd.log && \
 RUN touch /var/run/forked-daapd.pid && \
     chown ubuntu.root /var/run/forked-daapd.pid
 
-# RUN chmod 775 /etc/init.d/avahi-daemon
-# RUN update-rc.d avahi-daemon defaults
+RUN update-rc.d avahi-daemon defaults
 
 RUN mkdir /usr/share/forked-daapd/ && \
     cp -R $WORKDIR/forked-daapd/htdocs /usr/share/forked-daapd/htdocs
