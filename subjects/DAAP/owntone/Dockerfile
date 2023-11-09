@@ -72,32 +72,32 @@ RUN apt-get -y install \
 
 USER root
 
-COPY --chown=ubuntu:ubuntu forked-daapd.patch ${WORKDIR}/forked-daapd.patch
-# COPY --chown=ubuntu:ubuntu forked-daapd-gcov.patch ${WORKDIR}/forked-daapd-gcov.patch
+COPY --chown=ubuntu:ubuntu owntone.patch ${WORKDIR}/owntone.patch
+# COPY --chown=ubuntu:ubuntu owntone-gcov.patch ${WORKDIR}/owntone-gcov.patch
 
 
 # Set up environment variables for ASAN
 env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=1:detect_container_overflow=0:poison_array_cookie=0:malloc_fill_byte=0:max_malloc_fill_size=16777216'
 
-# Download and compile forked-daapd for fuzzing
+# Download and compile owntone for fuzzing
 RUN cd $WORKDIR && \
-    git clone https://github.com/ejurgensen/forked-daapd.git
+    git clone https://github.com/owntone/owntone-server.git
 
-RUN cd $WORKDIR/forked-daapd && \
+RUN cd $WORKDIR/owntone && \
     git checkout 83ac327 && \
-    patch -p1 < $WORKDIR/forked-daapd.patch
+    patch -p1 < $WORKDIR/owntone.patch
 
-RUN cd $WORKDIR/forked-daapd && autoreconf -i && \
+RUN cd $WORKDIR/owntone && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
-RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make clean all $MAKE_OPT
+RUN cd $WORKDIR/owntone && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
-# Download and compile forked-daapd for code coverage analysis
+# Download and compile owntone for code coverage analysis
 # RUN cd $WORKDIR && \
-#     git clone https://github.com/ejurgensen/forked-daapd.git forked-daapd-gcov && \
-#     cd forked-daapd-gcov && \
+#     git clone https://github.com/ejurgensen/owntone.git owntone-gcov && \
+#     cd owntone-gcov && \
 #     git checkout 2ca10d9 && \
-#     patch -p1 < $WORKDIR/forked-daapd.patch && \
-#     patch -p1 < $WORKDIR/forked-daapd-gcov.patch && \
+#     patch -p1 < $WORKDIR/owntone.patch && \
+#     patch -p1 < $WORKDIR/owntone-gcov.patch && \
 #     autoreconf -i && \
 #     CFLAGS="-DSQLITE_CORE -fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
 #     make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c && \
@@ -107,16 +107,16 @@ RUN cd $WORKDIR/forked-daapd && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 # Setting up the environment using root account
 USER root
 
-RUN touch /var/log/forked-daapd.log && \
-    chown ubuntu.root /var/log/forked-daapd.log
+RUN touch /var/log/owntone.log && \
+    chown ubuntu.root /var/log/owntone.log
 
-RUN touch /var/run/forked-daapd.pid && \
-    chown ubuntu.root /var/run/forked-daapd.pid
+RUN touch /var/run/owntone.pid && \
+    chown ubuntu.root /var/run/owntone.pid
 
 RUN update-rc.d avahi-daemon defaults
 
-RUN mkdir /usr/share/forked-daapd/ && \
-    cp -R $WORKDIR/forked-daapd/htdocs /usr/share/forked-daapd/htdocs
+RUN mkdir /usr/share/owntone/ && \
+    cp -R $WORKDIR/owntone/htdocs /usr/share/owntone/htdocs
 
 RUN ln -s $WORKDIR/MP3 /tmp/MP3
 
@@ -131,4 +131,4 @@ COPY --chown=ubuntu:ubuntu in-daap ${WORKDIR}/in-daap
 # COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
 COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu MP3 ${WORKDIR}/MP3
-COPY --chown=ubuntu:ubuntu forked-daapd.conf ${WORKDIR}/forked-daapd.conf
+COPY --chown=ubuntu:ubuntu owntone.conf ${WORKDIR}/owntone.conf
