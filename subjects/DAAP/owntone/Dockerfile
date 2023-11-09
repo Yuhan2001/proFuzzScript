@@ -83,13 +83,13 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/owntone/owntone-server.git
 
-RUN cd $WORKDIR/owntone && \
+RUN cd $WORKDIR/owntone-server && \
     git checkout 83ac327 && \
     patch -p1 < $WORKDIR/owntone.patch
 
-RUN cd $WORKDIR/owntone && autoreconf -i && \
+RUN cd $WORKDIR/owntone-server && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
-RUN cd $WORKDIR/owntone && AFL_USE_ASAN=1 make clean all $MAKE_OPT
+RUN cd $WORKDIR/owntone-server && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
 # Download and compile owntone for code coverage analysis
 # RUN cd $WORKDIR && \
