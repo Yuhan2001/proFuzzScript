@@ -13,7 +13,7 @@ index bef673fce..03025205a 100644
  project(DCMTK)
  
 diff --git a/dcmqrdb/apps/dcmqrscp.cc b/dcmqrdb/apps/dcmqrscp.cc
-index 8b29ed13e..d3b91a3b7 100644
+index 8b29ed13e..3b6cb2dbc 100644
 --- a/dcmqrdb/apps/dcmqrscp.cc
 +++ b/dcmqrdb/apps/dcmqrscp.cc
 @@ -106,8 +106,8 @@ static void mangleAssociationProfileKey(OFString& key)
@@ -23,7 +23,7 @@ index 8b29ed13e..d3b91a3b7 100644
 -  OFString opt_configFileName = OFStandard::getDefaultConfigurationDir();
 -  opt_configFileName += "dcmqrscp.cfg";
 +  // OFString opt_configFileName = OFStandard::getDefaultConfigurationDir();
-+  OFString opt_configFileName += "dcmqrscp.cfg";
++  OFString opt_configFileName = "dcmqrscp.cfg";
    OFCondition cond = EC_Normal;
    OFCmdUnsignedInt overridePort = 0;
    OFCmdUnsignedInt overrideMaxPDU = 0;
