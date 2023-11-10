@@ -1,30 +1,31 @@
 diff --git a/src/dnsmasq.c b/src/dnsmasq.c
-index 19a6428..9493d74 100644
+index 112dbe5..10257cf 100644
 --- a/src/dnsmasq.c
 +++ b/src/dnsmasq.c
-@@ -134,7 +134,7 @@ int main (int argc, char **argv)
-      open to /dev/null. Normally we'll be started with 0, 1 and 2 open, 
-      but it's not guaranteed. By opening /dev/null three times, we 
-      ensure that we're not using those fds for real stuff. */
--  for (i = 0; i < max_fd; i++)
-+  for (i = 0; i < 1024; i++)
-     if (i != STDOUT_FILENO && i != STDERR_FILENO && i != STDIN_FILENO)
-       close(i);
-     else
+@@ -162,7 +162,8 @@ int main (int argc, char **argv)
+     open("/dev/null", O_RDWR); 
+   
+   /* Close any file descriptors we inherited apart from std{in|out|err} */
+-  close_fds(max_fd, -1, -1, -1);
++  // close_fds(max_fd, -1, -1, -1);
++  close_fds(1024, -1, -1, -1);
+   
+ #ifndef HAVE_LINUX_NETWORK
+ #  if !(defined(IP_RECVDSTADDR) && defined(IP_RECVIF) && defined(IP_SENDSRCADDR))
 diff --git a/src/util.c b/src/util.c
-index 9299703..1f419c4 100644
+index 6521e3f..b562422 100644
 --- a/src/util.c
 +++ b/src/util.c
-@@ -37,7 +37,7 @@ static int outleft = 0;
+@@ -43,7 +43,7 @@ static int outleft = 0;
  
  void rand_init()
  {
 -  int fd = open(RANDFILE, O_RDONLY);
-+  /*int fd = open(RANDFILE, O_RDONLY);
++  /* int fd = open(RANDFILE, O_RDONLY);
    
    if (fd == -1 ||
        !read_write(fd, (unsigned char *)&seed, sizeof(seed), 1) ||
-@@ -45,6 +45,9 @@ void rand_init()
+@@ -51,6 +51,9 @@ void rand_init()
      die(_("failed to seed the random number generator: %s"), NULL, EC_MISC);
    
    close(fd);

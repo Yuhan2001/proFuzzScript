@@ -44,10 +44,10 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
+# RUN git clone https://github.com/profuzzbench/aflnwe.git && \
+#     cd aflnwe && \
+#     make clean all $MAKE_OPT && \
+#     cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -73,23 +73,23 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone git://thekelleys.org.uk/dnsmasq.git && \
     cd dnsmasq && \
-    git checkout v2.73rc6 && \
+    git checkout v2.89rc6 && \
     patch -p1 < ${WORKDIR}/dnsmasq.patch && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make $MAKE_OPT
 
-# Download and compile Dnsmasq for coverage analysis
-RUN cd $WORKDIR && \
-    git clone git://thekelleys.org.uk/dnsmasq.git dnsmasq-gcov && \
-    cd dnsmasq-gcov && \
-    git checkout v2.73rc6 && \
-    patch -p1 < ${WORKDIR}/dnsmasq.patch && \
-    make CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" $MAKE_OPT
+# # Download and compile Dnsmasq for coverage analysis
+# RUN cd $WORKDIR && \
+#     git clone git://thekelleys.org.uk/dnsmasq.git dnsmasq-gcov && \
+#     cd dnsmasq-gcov && \
+#     git checkout v2.73rc6 && \
+#     patch -p1 < ${WORKDIR}/dnsmasq.patch && \
+#     make CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" $MAKE_OPT
 
 
 COPY --chown=ubuntu:ubuntu in-dns ${WORKDIR}/in-dns
 COPY --chown=ubuntu:ubuntu dns.dict ${WORKDIR}/dns.dict
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
+# COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
+# COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu dnsmasq.conf ${WORKDIR}/dnsmasq.conf
 
 RUN cp ${WORKDIR}/dnsmasq.conf /etc/ && \
