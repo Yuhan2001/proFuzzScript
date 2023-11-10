@@ -64,7 +64,7 @@ RUN mkdir $WORKDIR
 USER root
 RUN apt-get -y install cmake
 
-COPY --chown=ubuntu:ubuntu Dcmtk.patch ${WORKDIR}/Dcmtk.patch
+COPY --chown=ubuntu:ubuntu dcmtk.patch ${WORKDIR}/dcmtk.patch
 # COPY --chown=ubuntu:ubuntu normal.patch ${WORKDIR}/normal.patch
 
 # Set up environment variables for ASAN
@@ -75,7 +75,7 @@ RUN cd $WORKDIR && \
     git clone https://github.com/DCMTK/dcmtk && \
     cd dcmtk && \
     git checkout 1549d8c && \
-    patch -p1 < $WORKDIR/Dcmtk.patch && \
+    patch -p1 < $WORKDIR/dcmtk.patch && \
     mkdir build && cd build && \
     cmake .. && \
     AFL_USE_ASAN=1 make dcmqrscp $MAKE_OPT
