@@ -44,10 +44,10 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
+# RUN git clone https://github.com/profuzzbench/aflnwe.git && \
+#     cd aflnwe && \
+#     make clean all $MAKE_OPT && \
+#     cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -65,7 +65,7 @@ USER root
 RUN apt-get -y install cmake
 
 COPY --chown=ubuntu:ubuntu fuzzing.patch ${WORKDIR}/fuzzing.patch
-COPY --chown=ubuntu:ubuntu normal.patch ${WORKDIR}/normal.patch
+# COPY --chown=ubuntu:ubuntu normal.patch ${WORKDIR}/normal.patch
 
 # Set up environment variables for ASAN
 env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=1:detect_container_overflow=0:poison_array_cookie=0:malloc_fill_byte=0:max_malloc_fill_size=16777216'
@@ -74,22 +74,22 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/DCMTK/dcmtk && \
     cd dcmtk && \
-    git checkout 7f8564c && \
-    patch -p1 < $WORKDIR/fuzzing.patch && \
+    git checkout 1549d8c && \
+    patch -p1 < $WORKDIR/Dcmtk.patch && \
     mkdir build && cd build && \
     cmake .. && \
     AFL_USE_ASAN=1 make dcmqrscp $MAKE_OPT
 
 
 # Download and compile Dcmtk for coverage analysis
-RUN cd $WORKDIR && \
-    git clone https://github.com/DCMTK/dcmtk dcmtk-gcov && \
-    cd dcmtk-gcov && \
-    git checkout 7f8564c && \
-    patch -p1 < $WORKDIR/normal.patch && \
-    mkdir build && cd build && \
-    cmake -G"Unix Makefiles" .. -DCMAKE_C_FLAGS="-g -fprofile-arcs -ftest-coverage" -DCMAKE_CXX_FLAGS="-g -fprofile-arcs -ftest-coverage" && \
-    make dcmqrscp $MAKE_OPT
+# RUN cd $WORKDIR && \
+#     git clone https://github.com/DCMTK/dcmtk dcmtk-gcov && \
+#     cd dcmtk-gcov && \
+#     git checkout 7f8564c && \
+#     patch -p1 < $WORKDIR/normal.patch && \
+#     mkdir build && cd build && \
+#     cmake -G"Unix Makefiles" .. -DCMAKE_C_FLAGS="-g -fprofile-arcs -ftest-coverage" -DCMAKE_CXX_FLAGS="-g -fprofile-arcs -ftest-coverage" && \
+#     make dcmqrscp $MAKE_OPT
 
 
 # Setup server
@@ -107,6 +107,6 @@ RUN cd $WORKDIR/dcmtk/build/bin && \
     mkdir ACME_STORE && \
     cp $WORKDIR/dcmqrscp.cfg ./
 
-RUN cd $WORKDIR/dcmtk-gcov/build/bin && \
-    mkdir ACME_STORE && \
-    cp $WORKDIR/dcmqrscp.cfg ./
+# RUN cd $WORKDIR/dcmtk-gcov/build/bin && \
+#     mkdir ACME_STORE && \
+#     cp $WORKDIR/dcmqrscp.cfg ./

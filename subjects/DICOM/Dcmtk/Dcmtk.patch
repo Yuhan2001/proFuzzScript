@@ -1,0 +1,29 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bef673fce..03025205a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,6 +1,9 @@
+ # Minimum CMake version required
+ cmake_minimum_required(VERSION 3.0.0...3.27.3 FATAL_ERROR)
+ 
++SET(CMAKE_C_COMPILER afl-clang-fast)
++SET(CMAKE_CXX_COMPILER afl-clang-fast++)
++
+ # Declare project
+ project(DCMTK)
+ 
+diff --git a/dcmqrdb/apps/dcmqrscp.cc b/dcmqrdb/apps/dcmqrscp.cc
+index 8b29ed13e..d3b91a3b7 100644
+--- a/dcmqrdb/apps/dcmqrscp.cc
++++ b/dcmqrdb/apps/dcmqrscp.cc
+@@ -106,8 +106,8 @@ static void mangleAssociationProfileKey(OFString& key)
+ int
+ main(int argc, char *argv[])
+ {
+-  OFString opt_configFileName = OFStandard::getDefaultConfigurationDir();
+-  opt_configFileName += "dcmqrscp.cfg";
++  // OFString opt_configFileName = OFStandard::getDefaultConfigurationDir();
++  OFString opt_configFileName += "dcmqrscp.cfg";
+   OFCondition cond = EC_Normal;
+   OFCmdUnsignedInt overridePort = 0;
+   OFCmdUnsignedInt overrideMaxPDU = 0;
