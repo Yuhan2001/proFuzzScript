@@ -73,7 +73,7 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone git://thekelleys.org.uk/dnsmasq.git && \
     cd dnsmasq && \
-    git checkout v2.89rc6 && \
+    git checkout v2.89 && \
     patch -p1 < ${WORKDIR}/dnsmasq.patch && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make $MAKE_OPT
 
