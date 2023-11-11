@@ -91,18 +91,6 @@ RUN cd $WORKDIR/owntone-server && autoreconf -i && \
     CC=$AFLNET/afl-clang-fast CFLAGS="-DSQLITE_CORE" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static
 RUN cd $WORKDIR/owntone-server && AFL_USE_ASAN=1 make clean all $MAKE_OPT
 
-# Download and compile owntone for code coverage analysis
-# RUN cd $WORKDIR && \
-#     git clone https://github.com/ejurgensen/owntone.git owntone-gcov && \
-#     cd owntone-gcov && \
-#     git checkout 2ca10d9 && \
-#     patch -p1 < $WORKDIR/owntone.patch && \
-#     patch -p1 < $WORKDIR/owntone-gcov.patch && \
-#     autoreconf -i && \
-#     CFLAGS="-DSQLITE_CORE -fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var  --disable-mpd --disable-itunes --disable-lastfm --disable-spotify --disable-verification  --disable-shared --enable-static && \
-#     make -C src/ SMARTPL2SQL.c SMARTPL.c DAAP2SQL.c DAAPLexer.c RSPLexer.c RSP2SQL.c && \
-#     make clean all $MAKE_OPT
-
 
 # Setting up the environment using root account
 USER root
