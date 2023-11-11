@@ -44,10 +44,10 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
+# RUN git clone https://github.com/profuzzbench/aflnwe.git && \
+#     cd aflnwe && \
+#     make clean all $MAKE_OPT && \
+#     cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -61,36 +61,36 @@ ENV AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 \
 
 RUN mkdir $WORKDIR
 
-COPY --chown=ubuntu:ubuntu fuzzing.patch ${WORKDIR}/fuzzing.patch
-COPY --chown=ubuntu:ubuntu gcov.patch ${WORKDIR}/gcov.patch
+COPY --chown=ubuntu:ubuntu bftpd.patch ${WORKDIR}/bftpd.patch
+# COPY --chown=ubuntu:ubuntu gcov.patch ${WORKDIR}/gcov.patch
 
 # Set up environment variables for ASAN
 env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=1:detect_container_overflow=0:poison_array_cookie=0:malloc_fill_byte=0:max_malloc_fill_size=16777216'
 
 # Set up Bftpd for fuzzing
 RUN cd ${WORKDIR} && \
-    wget https://sourceforge.net/projects/bftpd/files/bftpd/bftpd-5.7/bftpd-5.7.tar.gz && \
-    tar -zxvf bftpd-5.7.tar.gz && \
+    wget https://sourceforge.net/projects/bftpd/files/bftpd/bftpd-6.1/bftpd-6.1.tar.gz && \
+    tar -zxvf bftpd-6.1.tar.gz && \
     cd bftpd && \
-    patch -p1 < ${WORKDIR}/fuzzing.patch && \
+    patch -p1 < ${WORKDIR}/bftpd.patch && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make clean all $MAKE_OPT
 
 
-# Set up Bftpd for coverage analysis
-RUN cd ${WORKDIR} && \
-    mkdir ${WORKDIR}/bftpd-gcov && \
-    tar -zxvf bftpd-5.7.tar.gz -C ${WORKDIR}/bftpd-gcov --strip-components=1 && \
-    cd ${WORKDIR}/bftpd-gcov && \
-    patch -p1 < ${WORKDIR}/gcov.patch && \
-    make $MAKE_OPT
+# # Set up Bftpd for coverage analysis
+# RUN cd ${WORKDIR} && \
+#     mkdir ${WORKDIR}/bftpd-gcov && \
+#     tar -zxvf bftpd-5.7.tar.gz -C ${WORKDIR}/bftpd-gcov --strip-components=1 && \
+#     cd ${WORKDIR}/bftpd-gcov && \
+#     patch -p1 < ${WORKDIR}/gcov.patch && \
+#     make $MAKE_OPT
 
 
 COPY --chown=ubuntu:ubuntu basic.conf ${WORKDIR}/
 COPY --chown=ubuntu:ubuntu in-ftp ${WORKDIR}/in-ftp
 COPY --chown=ubuntu:ubuntu ftp.dict ${WORKDIR}/ftp.dict
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
+# COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu clean.sh ${WORKDIR}/clean
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
+# COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
 
 RUN mkdir /home/ubuntu/ftpshare && \
     chown -R ubuntu:ubuntu /home/ubuntu/ftpshare
