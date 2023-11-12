@@ -65,7 +65,7 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/hfiref0x/LightFTP.git && \
     cd LightFTP && \
-    git checkout 5980ea1 && \
+    git checkout 188e63b && \
     patch -p1 < ${WORKDIR}/fuzzing.patch && \
     cd Source/Release && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make clean all $MAKE_OPT

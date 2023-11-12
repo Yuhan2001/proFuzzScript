@@ -1,0 +1,62 @@
+diff --git a/Source/Release/subdir.mk b/Source/Release/subdir.mk
+index b5d9ec0..3da4b93 100644
+--- a/Source/Release/subdir.mk
++++ b/Source/Release/subdir.mk
+@@ -32,7 +32,7 @@ C_DEPS += \
+ %.o: ../%.c
+ 	@echo 'Building file: $<'
+ 	@echo 'Invoking: GCC C Compiler'
+-	$(CC) $(CFLAGS) -std=c99 -D_GNU_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O3 -pedantic -Wall -Wextra -c -fmessage-length=0 -Wno-unused-parameter -Wno-unused-result -fno-ident -v -pthread -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
++	$(CC) $(CFLAGS) -std=c99 -O3 -Wall -Wextra -c -fmessage-length=0 -Wno-unused-parameter -Wno-unused-result -fno-ident -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+ 	@echo 'Finished building: $<'
+ 	@echo ' '
+ 
+diff --git a/Source/ftpserv.c b/Source/ftpserv.c
+index 46a960e..f7e2d11 100644
+--- a/Source/ftpserv.c
++++ b/Source/ftpserv.c
+@@ -1780,6 +1780,9 @@ void *ftpmain(void *p)
+                 g_threads, g_cfg.MaxUsers, g_client_sockets_created, g_client_sockets_closed);
+ 
+         writelogentry(NULL, text, "");
++        //Terminate the main thread when the child thread terminates
++        pthread_join(th, NULL);
++        break;
+     }
+ 
+     close(ftpsocket);
+diff --git a/Source/main.c b/Source/main.c
+index cc67a9a..798096f 100644
+--- a/Source/main.c
++++ b/Source/main.c
+@@ -65,9 +65,10 @@ int main(int argc, char *argv[])
+ 		if (config_parse(cfg, CONFIG_SECTION_NAME, "local_mask", textbuf, bufsize))
+ 			g_cfg.LocalIPMask = inet_addr(textbuf);
+ 
+-		g_cfg.Port = DEFAULT_FTP_PORT;
+-		if (config_parse(cfg, CONFIG_SECTION_NAME, "port", textbuf, bufsize))
+-			g_cfg.Port = strtoul(textbuf, NULL, 10);
++		// g_cfg.Port = DEFAULT_FTP_PORT;
++		// if (config_parse(cfg, CONFIG_SECTION_NAME, "port", textbuf, bufsize))
++		// 	g_cfg.Port = strtoul(textbuf, NULL, 10);
++		g_cfg.Port = strtoul(argv[2], NULL, 10);
+ 
+ 		g_cfg.MaxUsers = 1;
+ 		if (config_parse(cfg, CONFIG_SECTION_NAME, "maxusers", textbuf, bufsize))
+@@ -142,10 +143,12 @@ int main(int argc, char *argv[])
+ 			break;
+ 		}
+ 
+-		do {
+-			c = getc(stdin);
+-			sleep(1);
+-		} while ((c != 'q') && (c != 'Q'));
++		// do {
++		// 	c = getc(stdin);
++		// 	sleep(1);
++		// } while ((c != 'q') && (c != 'Q'));
++		//Terminate the server when the main thread terminates
++		pthread_join(thid, NULL);
+ 
+ 		break;
+ 	}
