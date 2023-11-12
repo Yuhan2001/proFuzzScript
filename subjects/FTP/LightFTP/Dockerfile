@@ -66,7 +66,7 @@ RUN cd $WORKDIR && \
     git clone https://github.com/hfiref0x/LightFTP.git && \
     cd LightFTP && \
     git checkout 188e63b && \
-    # patch -p1 < ${WORKDIR}/lightftp.patch && \
+    patch -p1 < ${WORKDIR}/lightftp.patch && \
     cd Source/Release && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make clean all $MAKE_OPT
 
