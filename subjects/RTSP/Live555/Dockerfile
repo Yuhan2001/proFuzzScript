@@ -75,5 +75,3 @@ RUN cd ${WORKDIR}/live555/testProgs && \
 COPY --chown=ubuntu:ubuntu kill-server.sh ${WORKDIR}/kill-server
 COPY --chown=ubuntu:ubuntu in-rtsp ${WORKDIR}/in-rtsp
 COPY --chown=ubuntu:ubuntu rtsp.dict ${WORKDIR}/rtsp.dict
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
