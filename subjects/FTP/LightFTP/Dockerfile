@@ -29,7 +29,6 @@ RUN groupadd ubuntu && \
 
 RUN chmod 777 /tmp
 
-# RUN pip3 install gcovr==4.2
 
 # Use ubuntu as default username
 USER ubuntu
@@ -44,10 +43,6 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -61,8 +56,7 @@ ENV AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 \
 
 RUN mkdir $WORKDIR
 
-COPY --chown=ubuntu:ubuntu fuzzing.patch ${WORKDIR}/fuzzing.patch
-COPY --chown=ubuntu:ubuntu gcov.patch ${WORKDIR}/gcov.patch
+COPY --chown=ubuntu:ubuntu lightftp.patch ${WORKDIR}/lightftp.patch
 
 # Set up environment variables for ASAN
 env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=1:detect_container_overflow=0:poison_array_cookie=0:malloc_fill_byte=0:max_malloc_fill_size=16777216'
@@ -83,25 +77,9 @@ RUN cd ${WORKDIR}/LightFTP/Source/Release && \
     cp -r ${AFLNET}/tutorials/lightftp/certificate /home/ubuntu && \
     mkdir /home/ubuntu/ftpshare
 
-# Download and compile LightFTP for coverage analysis
-RUN cd $WORKDIR && \
-    git clone https://github.com/hfiref0x/LightFTP.git LightFTP-gcov && \
-    cd LightFTP-gcov && \
-    git checkout 5980ea1 && \
-    patch -p1 < ${WORKDIR}/gcov.patch && \
-    cd Source/Release && \
-    make CFLAGS="-fprofile-arcs -ftest-coverage" CPPFLAGS="-fprofile-arcs -ftest-coverage" CXXFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" clean all $MAKE_OPT
-
-# Set up LightFTP for fuzzing
-RUN cd ${WORKDIR}/LightFTP-gcov/Source/Release && \
-    cp ${AFLNET}/tutorials/lightftp/fftp.conf ./ && \
-    cp ${AFLNET}/tutorials/lightftp/ftpclean.sh ./
-
 
 COPY --chown=ubuntu:ubuntu in-ftp ${WORKDIR}/in-ftp
 COPY --chown=ubuntu:ubuntu ftp.dict ${WORKDIR}/ftp.dict
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu clean.sh ${WORKDIR}/ftpclean
 
 
