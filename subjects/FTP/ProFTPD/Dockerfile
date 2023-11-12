@@ -29,7 +29,6 @@ RUN groupadd ubuntu && \
 
 RUN chmod 777 /tmp
 
-# RUN pip3 install gcovr==4.2
 
 # Use ubuntu as default username
 USER ubuntu
@@ -41,11 +40,6 @@ ARG MAKE_OPT
 # Set up fuzzers
 RUN git clone https://github.com/profuzzbench/aflnet.git && \
     cd aflnet && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
-
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
@@ -71,26 +65,16 @@ RUN mkdir $WORKDIR
 RUN cd ${WORKDIR} && \
     git clone https://github.com/proftpd/proftpd.git && \
     cd proftpd && \
-    git checkout 4017eff8 && \
+    git checkout 52330bc && \
     CC="afl-clang-fast" CXX="afl-clang-fast++" ./configure --enable-devel=nodaemon:nofork && \
     AFL_USE_ASAN=1 make $MAKE_OPT
 
-# Set up ProFTPD for coverage analysis
-RUN cd ${WORKDIR} && \
-    git clone https://github.com/proftpd/proftpd.git proftpd-gcov && \
-    cd proftpd-gcov && \
-    git checkout 4017eff8 && \
-    CFLAGS="-fprofile-arcs -ftest-coverage" CPPFLAGS="-fprofile-arcs -ftest-coverage" CXXFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --enable-devel=nodaemon:nofork && \
-    make $MAKE_OPT
 
 
 COPY --chown=ubuntu:ubuntu basic.conf ${WORKDIR}/
 COPY --chown=ubuntu:ubuntu in-ftp ${WORKDIR}/in-ftp
 COPY --chown=ubuntu:ubuntu ftp.dict ${WORKDIR}/ftp.dict
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu clean.sh ${WORKDIR}/clean
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
-
 RUN mkdir /home/ubuntu/ftpshare && \
     chown -R ubuntu:ubuntu /home/ubuntu/ftpshare
 
