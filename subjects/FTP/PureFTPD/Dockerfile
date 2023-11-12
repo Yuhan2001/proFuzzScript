@@ -29,8 +29,6 @@ RUN groupadd ubuntu && \
 
 RUN chmod 777 /tmp
 
-RUN pip install gcovr==4.2
-
 # Use ubuntu as default username
 USER ubuntu
 WORKDIR /home/ubuntu
@@ -44,10 +42,6 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -61,8 +55,7 @@ ENV AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 \
 
 RUN mkdir $WORKDIR
 
-COPY --chown=ubuntu:ubuntu fuzzing.patch ${WORKDIR}/fuzzing.patch
-COPY --chown=ubuntu:ubuntu gcov.patch ${WORKDIR}/gcov.patch
+COPY --chown=ubuntu:ubuntu pureftpd.patch ${WORKDIR}/pureftpd.patch
 
 USER root
 RUN apt -y install automake
@@ -75,27 +68,15 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd ${WORKDIR} && \
     git clone https://github.com/jedisct1/pure-ftpd.git && \
     cd pure-ftpd && \
-    git checkout c21b45f && \
-    patch -p1 < ${WORKDIR}/fuzzing.patch && \
+    git checkout 7ba4502 && \
+    patch -p1 < ${WORKDIR}/pureftpd.patch && \
     ./autogen.sh && \
     CC="afl-clang-fast" CXX="afl-clang-fast++" CFLAGS="-fsanitize=address -g -O0" CXXFLAGS="-fsanitize=address -g -O0" LDFLAGS="-fsanitize=address" ./configure --without-privsep -without-capabilities && \
     make $MAKE_OPT
 
-# Set up PureFTPD for coverage analysis
-RUN cd ${WORKDIR} && \
-    git clone https://github.com/jedisct1/pure-ftpd.git pure-ftpd-gcov && \
-    cd pure-ftpd-gcov && \
-    git checkout c21b45f && \
-    patch -p1 < ${WORKDIR}/gcov.patch && \
-    ./autogen.sh && \
-    CFLAGS="-fprofile-arcs -ftest-coverage" CPPFLAGS="-fprofile-arcs -ftest-coverage" CXXFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" ./configure --without-privsep -without-capabilities && \
-    make $MAKE_OPT
-
 COPY --chown=ubuntu:ubuntu in-ftp ${WORKDIR}/in-ftp
 COPY --chown=ubuntu:ubuntu ftp.dict ${WORKDIR}/ftp.dict
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu clean.sh ${WORKDIR}/clean
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
 
 # Switch default user to root
 USER root
