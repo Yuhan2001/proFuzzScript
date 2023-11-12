@@ -29,7 +29,6 @@ RUN groupadd ubuntu && \
 
 RUN chmod 777 /tmp
 
-# RUN pip3 install gcovr==4.2
 
 # Use ubuntu as default username
 USER ubuntu
@@ -44,10 +43,6 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -77,7 +72,7 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/kamailio/kamailio.git && \
     cd kamailio && \
-    git checkout 2648eb3 && \
+    git checkout 2b96664 && \
     patch -p1 < $WORKDIR/kamailio.patch && \
     CC=afl-clang-fast make MEMPKG=sys cfg && \
     AFL_USE_ASAN=1 CC=afl-clang-fast make all $MAKE_OPT
@@ -86,23 +81,12 @@ RUN cd $WORKDIR && \
 RUN cd $WORKDIR && \
     git clone https://github.com/pjsip/pjproject.git && \
     cd pjproject && \
-    git checkout bba95b8 && \
+    git checkout ca52557 && \
     patch -p1 < $WORKDIR/pjsip.patch && \
     ./configure && \
     make dep && make clean && make $MAKE_OPT
 
-# Download and compile Kamalio for code coverage analysis
-RUN cd $WORKDIR && \
-    git clone https://github.com/kamailio/kamailio.git kamailio-gcov && \
-    cd kamailio-gcov && \
-    git checkout 2648eb3 && \
-    patch -p1 < $WORKDIR/kamailio.patch && \
-    make CC_EXTRA_OPTS="-fprofile-arcs -ftest-coverage" LD_EXTRA_OPTS="-fprofile-arcs -ftest-coverage" MEMPKG=sys cfg && \
-    make CC_EXTRA_OPTS="-fprofile-arcs -ftest-coverage" LD_EXTRA_OPTS="-fprofile-arcs -ftest-coverage" all $MAKE_OPT
-
 COPY --chown=ubuntu:ubuntu in-sip ${WORKDIR}/in-sip
-COPY --chown=ubuntu:ubuntu cov_script.sh ${WORKDIR}/cov_script
-COPY --chown=ubuntu:ubuntu run.sh ${WORKDIR}/run
 COPY --chown=ubuntu:ubuntu run_pjsip.sh ${WORKDIR}/run_pjsip
 COPY --chown=ubuntu:ubuntu kamailio-basic.cfg ${WORKDIR}/kamailio-basic.cfg
 COPY --chown=ubuntu:ubuntu StarWars3.wav ${WORKDIR}/StarWars3.wav
