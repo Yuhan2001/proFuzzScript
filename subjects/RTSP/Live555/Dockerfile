@@ -29,8 +29,6 @@ RUN groupadd ubuntu && \
 
 RUN chmod 777 /tmp
 
-RUN pip3 install gcovr==4.2
-
 # Use ubuntu as default username
 USER ubuntu
 WORKDIR /home/ubuntu
@@ -44,10 +42,6 @@ RUN git clone https://github.com/profuzzbench/aflnet.git && \
     make clean all $MAKE_OPT && \
     cd llvm_mode && make $MAKE_OPT
 
-RUN git clone https://github.com/profuzzbench/aflnwe.git && \
-    cd aflnwe && \
-    make clean all $MAKE_OPT && \
-    cd llvm_mode && make $MAKE_OPT
 
 # Set up environment variables for AFLNet
 ENV WORKDIR="/home/ubuntu/experiments"
@@ -62,8 +56,6 @@ ENV AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1 \
 RUN mkdir $WORKDIR
 
 COPY --chown=ubuntu:ubuntu fuzzing.patch ${WORKDIR}/fuzzing.patch
-COPY --chown=ubuntu:ubuntu gcov.patch ${WORKDIR}/gcov.patch
-
 # Set up environment variables for ASAN
 env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=1:detect_container_overflow=0:poison_array_cookie=0:malloc_fill_byte=0:max_malloc_fill_size=16777216'
 
@@ -71,26 +63,13 @@ env ASAN_OPTIONS='abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_a
 RUN cd $WORKDIR && \
     git clone https://github.com/rgaufman/live555.git && \
     cd live555 && \
-    git checkout ceeb4f4 && \
-    patch -p1 < $WORKDIR/fuzzing.patch && \
+    git checkout 2c92a57 && \
+    patch -p1 < $WORKDIR/live555.patch && \
     ./genMakefiles linux && \
     AFL_USE_ASAN=1 make clean all $MAKE_OPT || make all
 
 # Set up Live555 for fuzzing
 RUN cd ${WORKDIR}/live555/testProgs && \
-    cp ${AFLNET}/tutorials/live555/sample_media_sources/*.* ./
-
-# Download and compile Live555 for coverage analysis
-RUN cd $WORKDIR && \
-    git clone https://github.com/rgaufman/live555.git live555-cov && \
-    cd live555-cov && \
-    git checkout ceeb4f4 && \
-    patch -p1 < $WORKDIR/gcov.patch && \
-    ./genMakefiles linux && \
-    make CFLAGS="-fprofile-arcs -ftest-coverage" CPPFLAGS="-fprofile-arcs -ftest-coverage" CXXFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" clean all
-
-# Set up Live555 for coverage analysis
-RUN cd ${WORKDIR}/live555-cov/testProgs && \
     cp ${AFLNET}/tutorials/live555/sample_media_sources/*.* ./
 
 COPY --chown=ubuntu:ubuntu kill-server.sh ${WORKDIR}/kill-server
